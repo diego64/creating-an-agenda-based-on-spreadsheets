@@ -30,14 +30,14 @@ function criarEventoMissionario() {
       if (linha[0] && linha[1]) {
         var data = linha[0]; // DATA
         var horario = linha[1]; // HORÁRIO
-        var igrejaLocal = linha[2]; // IGREJA/LOCAL
-        var endereco = linha[3]; // ENDEREÇO
-        var bairro = linha[4]; // BAIRRO
-        var cidade = linha[5]; // CIDADE
-        var uf = linha[6]; // UF
-        var agendamento = linha[7]; // AGENDAMENTO
-        var missionario = linha[8]; // MISSIONÁRIO
-        var tipo_de_agendamento = linha[9]; // TIPO DE AGENDAMENTO
+        var tipo_de_agendamento = linha[2]; // TIPO DE AGENDAMENTO
+        var igrejaLocal = linha[3]; // IGREJA/LOCAL
+        var endereco = linha[4]; // ENDEREÇO
+        var bairro = linha[5]; // BAIRRO
+        var cidade = linha[6]; // CIDADE
+        var uf = linha[7]; // UF
+        var agendamento = linha[8]; // AGENDAMENTO
+        var missionario = linha[9]; // MISSIONÁRIO
         var responsavel = linha[10]; // RESPONSÁVEL PELO AGENDAMENTO
         var telefone = linha[11]; // TELEFONE
         var email = linha[12]; // E-MAIL
