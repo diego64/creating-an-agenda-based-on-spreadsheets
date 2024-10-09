@@ -87,7 +87,7 @@ function criarEventoMissionario() {
               // Criação do evento na agenda "Agendamento Missionário"
               var criarEvento = agenda.createEvent(tituloEvento, dataEvento, fimEvento, {
                 location: igrejaLocal,
-                description: `Telefone: ${telefone}\nHorário: ${horarioString}\nMobilizador responsavél: ${responsavel}`
+                description: `Evento: ${tipo_de_agendamento}\nTelefone: ${telefone}\nHorário: ${horarioString}\nMobilizador responsável: ${responsavel}`
               });
 
               Logger.log("Evento criado: " + criarEvento.getTitle() + " no horário " + horarioString + " em " + aba.getName());
