@@ -18,9 +18,13 @@
 
 This code is very simple and was developed due to the need of the events department of my current company to capture data from a spreadsheet (Google Sheets) and transform it into an event in Google Calendar.
 
+With the new update, the code allows you to read data from different tabs and save it in a specific category in Google Calendar.
+
 [PT-BR]
 
 Esse código é muito simples e foi desenvolvido através da necessidade do setor de eventos da minha atual empresa de capturar os dados de uma planilha (Google Sheets) e transformar em um evento no Google Calendar.
+
+Com a nova atualização, o codigo permite ler dados de abas diferentes e salvar em uma categoria especifica no Google Calendar
 
 ---
 
@@ -28,13 +32,15 @@ Esse código é muito simples e foi desenvolvido através da necessidade do seto
 
 Within the Google Workspace environment, it is possible to integrate your tools through manual processes or automatically through scripts. Within Google Sheets, there is an option to register scripts to execute a task based on functions.
 
-- Searches for values ​​from the entire spreadsheet
-- Calls Google Calendar
-- Reads the title of all columns
-- Converting event time and duration
-- Checks if the event already exists to avoid to avoid
-- Sets a color for the event based on the status
-- Create the event with the details and send the email to the user responsible for the registered event
+- Fetch values ​​from the entire spreadsheet (One or more tabs)
+- Call Google Calendar
+- Read the title of all columns
+- Converts the time and duration of the event
+- Checks if the event already exists to avoid it
+- Prohibit the creation of an event on a past date
+- Set a color for the event based on the status
+- Save the event in a specific category
+- Creates the event with the details and sends the email to the user responsible for the registered event
 ---
 
 ## 📖 Challenge
