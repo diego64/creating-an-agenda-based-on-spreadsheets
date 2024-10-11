@@ -102,3 +102,72 @@ function criarEventoMissionario() {
     }
   }
 }
+
+function verificarAtualizacoes() {
+  var planilha = SpreadsheetApp.getActiveSpreadsheet();
+  var todasAbas = planilha.getSheets();
+  var atualizacoes = [];
+  var horarioAtualizacao = new Date().toLocaleString(); // Formata a data e hora atual
+
+  // Ler da 3ª aba em diante
+  for (var i = 2; i < todasAbas.length; i++) {
+    var aba = todasAbas[i];
+    var valores = aba.getDataRange().getValues();
+
+    // Verifica se há mais de duas linhas de dados
+    if (valores.length > 2) {
+      var alteracoesDetectadas = false; // Variável para rastrear alterações
+
+      // Percorre as linhas a partir da 3ª linha
+      for (var j = 2; j < valores.length; j++) {
+        var linha = valores[j];
+
+        // Verificar se a linha tem dados
+        if (linha.some(campo => campo !== "")) { // Verifica se algum campo na linha não está vazio
+          alteracoesDetectadas = true; // Marca que foram detectadas alterações
+          break; // Sai do loop, pois já detectamos alterações
+        }
+      }
+
+      // Se foram detectadas alterações, adiciona o nome da aba
+      if (alteracoesDetectadas) {
+        atualizacoes.push(aba.getName());
+      }
+    }
+  }
+
+  // Se houver atualizações, envia um e-mail
+  if (atualizacoes.length > 0) {
+    var listaAbasAtualizadas = atualizacoes.join(", "); // Concatena os nomes das abas atualizadas
+    var emailDestino = "john.doe@jmm.org.br"; // Altere para o e-mail real
+
+    // Mensagem do e-mail em HTML
+    var mensagemEmail = `
+      <div style="font-family: 'Sans Serif', Arial, sans-serif; font-size: 14px; color: #333;">
+        <p>Olá Setor de Promoção, tudo bem?</p>
+
+        <p>Houve uma nova atualização na(s) aba(s) <b>${listaAbasAtualizadas}</b> às <b>${horarioAtualizacao}</b>.</p>
+
+        <p>Caso tenha alguma dúvida, entre em contato com o setor de Suporte Técnico.</p>
+
+        <p>Atenciosamente,</p>
+
+        <br>
+
+        <p style="font-weight: bold; margin-top: 20px;">
+          Sistema de Agendamento Automático <br>
+          Copyright (c) 2024 Diego Ferreira L.G. Oliveira <br>
+          Tecnologia da Informação <br>
+          (21) 2122-1900 Ramal 2001
+        </p>
+      </div>
+    `;
+
+    // Envio do e-mail
+    MailApp.sendEmail({
+      to: emailDestino,
+      subject: "Atualizações nas abas",
+      htmlBody: mensagemEmail
+    });
+  }
+}
