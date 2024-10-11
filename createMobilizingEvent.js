@@ -109,3 +109,74 @@ function criarEventoMobilizador() {
     }
   }
 }
+function onEdit(e) {
+  // Verifica se a edição ocorreu na aba "Mobilizador"
+  var sheet = e.source.getActiveSheet();
+  
+  if (sheet.getName() === 'Mobilizador') {
+    processMobilizador();
+    sendEmailNotification(sheet.getName());
+  }
+}
+
+function onEdit(e) {
+  // Verifica se a edição ocorreu na aba "Mobilizador"
+  var sheet = e.source.getActiveSheet();
+  
+  if (sheet.getName() === 'Mobilizador') {
+    processMobilizador();
+    sendEmailNotification(sheet.getName());
+  }
+}
+
+function processMobilizador() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Mobilizador');
+  var data = sheet.getDataRange().getValues();
+  
+  // Começar a leitura da terceira linha
+  for (var i = 2; i < data.length; i++) {  // Ignora as duas primeiras linhas
+    var linha = data[i];
+    
+    Logger.log('Processando linha: ' + (i+1));
+    
+    // Pausa de 5 segundo entre cada linha
+    Utilities.sleep(5000);
+  }
+}
+
+function sendEmailNotification(listaAbasAtualizadas) {
+  var emailRecipient = "agendamento@jmm.org.br";
+  var subject = "Atualização nas abas da planilha";
+  
+  // Obtém o horário atual da atualização
+  var horarioAtualizacao = new Date().toLocaleString("pt-BR");
+  
+  // Padrao do envio de e-mail
+  var message = `
+    <div style="font-family: 'Sans Serif', Arial, sans-serif; font-size: 14px; color: #333;">
+      <p>Olá Setor de Promoção, tudo bem?</p>
+
+      <p>Houve uma nova atualização na(s) aba(s) <b>${listaAbasAtualizadas}</b> às <b>${horarioAtualizacao}</b>.</p>
+
+      <p>Caso tenha alguma dúvida, entre em contato com o setor de Suporte Técnico.</p>
+
+      <p>Atenciosamente,</p>
+
+      <br>
+
+      <p style="font-weight: bold; margin-top: 20px;">
+        Sistema de Agendamento Automático <br>
+        Copyright (c) 2024 Diego Ferreira L.G. Oliveira <br>
+        Tecnologia da Informação <br>
+        (21) 2122-1900 Ramal 2001
+      </p>
+    </div>
+  `;
+
+  // Envio o e-mail
+  MailApp.sendEmail({
+    to: emailRecipient,
+    subject: subject,
+    htmlBody: message
+  });
+}
