@@ -20,11 +20,15 @@ This code is very simple and was developed due to the need of the events departm
 
 With the new update, the code allows you to read data from different tabs and save it in a specific category in Google Calendar.
 
+NOTE: For the code to work, you need to have the Google Workspace environment and always send the code with the .gs extension.
+
 [PT-BR]
 
 Esse código é muito simples e foi desenvolvido através da necessidade do setor de eventos da minha atual empresa de capturar os dados de uma planilha (Google Sheets) e transformar em um evento no Google Calendar.
 
-Com a nova atualização, o codigo permite ler dados de abas diferentes e salvar em uma categoria especifica no Google Calendar
+Com a nova atualização, o codigo permite ler dados de abas diferentes e salvar em uma categoria especifica no Google Calendar.
+
+OBS: Para o codigo funcionar, voce precisa ter o ambiente Google Workspace e sempre enviar o cogido com a extenção .gs
 
 ---
 
@@ -41,6 +45,7 @@ Within the Google Workspace environment, it is possible to integrate your tools 
 - Set a color for the event based on the status
 - Save the event in a specific category
 - Creates the event with the details and sends the email to the user responsible for the registered event
+- Reading and notification by email when there is an update in the spreadsheet
 ---
 
 ## 📖 Challenge
