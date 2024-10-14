@@ -1,14 +1,18 @@
 function criarEventoMobilizador() {
-  var planilha = SpreadsheetApp.getActiveSpreadsheet(); // Seleciona a planilha ativa
+  var planilha = SpreadsheetApp.getActiveSpreadsheet();
   var aba = planilha.getSheetByName('Mobilizador'); // Ler a aba 'Mobilizador'
   
-  // Buscar uma agenda específica pelo seu nome
-  var agendaNome = 'Agendamento Missionário';
-  var agendas = CalendarApp.getCalendarsByName(agendaNome);
-  var agenda = agendas.length > 0 ? agendas[0] : null;
+  // Buscar agendas específicas
+  var agendaMissionario = 'Agendamento Missionário';
+  var agendaCancelado = 'Agendamento Cancelado';
+  var agendasMissionario = CalendarApp.getCalendarsByName(agendaMissionario);
+  var agendasCancelado = CalendarApp.getCalendarsByName(agendaCancelado);
   
-  if (!agenda) {
-    Logger.log("A agenda '" + agendaNome + "' não foi encontrada.");
+  var agendaM = agendasMissionario.length > 0 ? agendasMissionario[0] : null;
+  var agendaC = agendasCancelado.length > 0 ? agendasCancelado[0] : null;
+  
+  if (!agendaM || !agendaC) {
+    Logger.log("Uma ou ambas as agendas não foram encontradas.");
     return;
   }
 
@@ -40,7 +44,7 @@ function criarEventoMobilizador() {
       var nome_pastor = linha[12]; // NOME DO PASTOR
       var status = linha[13]; // STATUS
 
-      // Log dos dados capturados
+       // Log dos dados capturados
       Logger.log(
         'Data: ' + data + ', Horário: ' + horario +
         ', Tipo de Agendamento: ' + tipo_de_agendamento +
@@ -54,102 +58,153 @@ function criarEventoMobilizador() {
         ', Nome do Pastor: ' + nome_pastor +
         ', Status: ' + status
       );
-    }
 
-    // Criar título do evento
-    var tituloEvento = agendamento + ' | ' + responsavel;
+      // Criar título do evento
+      var tituloEvento = agendamento + ' | ' + responsavel;
 
-    // Verificae se o horário está no formato correto
-    if (typeof horario === 'string' && horario.includes(':')) {
-      var partesHorario = horario.split(':'); // Transformar a string no formato de hora (Hora e minuto) 0900 --> 09:00 | 1330 --> 13:00
+      // Verificar se o horário está no formato correto
+      if (typeof horario === 'string' && horario.includes(':')) {
+        var partesHorario = horario.split(':'); // Transformar a string no formato de hora
 
-      // Verificar se o horario tem duas parte HH:mm
-      if (partesHorario.length === 2) {
-        var horas = parseInt(partesHorario[0]); // [15]
-        var minutos = parseInt(partesHorario[1]); //  [30]
+        if (partesHorario.length === 2) { // Recebe 0900
+          var horas = parseInt(partesHorario[0]); // [09]
+          var minutos = parseInt(partesHorario[1]); // [00]
 
-        // Formatar o horário do tipo string para o formato "HH:mm"
-        var horarioString = (horas < 10 ? '0' : '') + horas + ':' + (minutos < 10 ? '0' : '') + minutos;
+          // Criar um objeto Date com os dados formatados
+          var dataEvento = new Date(data);
+          dataEvento.setHours(horas, minutos); //09:00
 
-        // Criar um objeto Date com os dados formatados (Data e Horario)
-        var dataEvento = new Date(data);
-        dataEvento.setHours(horas, minutos);
+          // Verificar se a data do evento que está sendo criada é anterior à data atual
+          var agora = new Date();
+          if (dataEvento < agora) {
+            Logger.log('Tentativa de criar evento em uma data que já passou: ' + dataEvento);
+            continue; // Pula para a próxima linha se a data já passou
+          }
 
-        // Verificar se a data do evento que está sendo criada é anterior à data atual do evento que está sendo criado
-        var agora = new Date();
-        if (dataEvento < agora) {
-          Logger.log('Erro: Tentativa de criar evento em uma data que já passou: ' + dataEvento);
-          continue;
-        }
+          // Definir a duração do evento em 30 minutos
+          var fimEvento = new Date(dataEvento);
+          fimEvento.setMinutes(fimEvento.getMinutes() + 30);
 
-        // Definir a duração do evento em 30 minutos
-        var fimEvento = new Date(dataEvento);
-        fimEvento.setMinutes(fimEvento.getMinutes() + 30);
+          // Verificar se já existe um evento com o mesmo título no mesmo horário nas duas agendas
+          var eventosExistentesM = agendaM.getEvents(dataEvento, fimEvento);
+          var eventosExistentesC = agendaC.getEvents(dataEvento, fimEvento);
 
-        // Verificar se já existe um evento com o mesmo título no mesmo horário
-        var eventosExistentes = agenda.getEvents(dataEvento, fimEvento);
-        var eventoExistente = eventosExistentes.find(evento => evento.getTitle() === tituloEvento);
+          var eventoExistenteM = eventosExistentesM.find(evento => evento.getTitle() === tituloEvento);
+          var eventoExistenteC = eventosExistentesC.find(evento => evento.getTitle() === tituloEvento);
 
-        if (eventoExistente) {
-          Logger.log('Evento já existe: ' + tituloEvento + ' no horário ' + horarioString + ' em ' + aba.getName());
+          // Criar o evento apenas se não existir
+          if (!eventoExistenteM && !eventoExistenteC) {
+            // Adiciona o evento na agenda correta
+            if (status === 'Cancelado') {
+              agendaC.createEvent(tituloEvento, dataEvento, fimEvento, {
+                location: igrejaLocal,
+                description: `Evento cancelado.`
+              });
+              Logger.log('Evento criado na agenda AGENDAMENTO CANCELADO: ' + tituloEvento);
+            } else if (status === 'Confirmado') {
+              agendaM.createEvent(tituloEvento, dataEvento, fimEvento, {
+                location: igrejaLocal,
+                description: `Evento: ${tipo_de_agendamento}\nTelefone: ${telefone}\nHorário: ${horario}`
+              });
+              Logger.log('Evento criado na agenda AGENDAMENTO MISSIONARIO: ' + tituloEvento);
+            }
+          } else {
+            Logger.log('Evento já existe nas agendas: ' + tituloEvento);
+          }
         } else {
-          // Criar o evento na agenda "Agendamento Missionário"
-          var criarEvento = agenda.createEvent(tituloEvento, dataEvento, fimEvento, {
-            location: igrejaLocal,
-            description: `Evento: ${tipo_de_agendamento}\nTelefone: ${telefone}\nHorário: ${horarioString}\nMobilizador responsável: ${responsavel}`
-          });
-
-          Logger.log('Evento criado: ' + criarEvento.getTitle() + ' no horário ' + horarioString + ' em ' + aba.getName());
+          Logger.log("Erro: O horário não está no formato 'HH:mm': " + horario);
         }
       } else {
-        Logger.log("Erro: O horário não está no formato 'HH:mm': " + horario);
+        Logger.log('Erro: O valor de horário é inválido ou não está em formato de string: ' + horario);
       }
-    } else {
-      Logger.log('Erro: O valor de horário é inválido ou não está em formato de string: ' + horario);
     }
   }
-}
-function onEdit(e) {
-  // Verifica se o evento 'e' e o 'range' editado são válidos
-  if (!e || !e.range) return;
-
-  // Verifica se a edição ocorreu na aba "Mobilizador"
-  var sheet = e.source.getActiveSheet();
   
-  if (sheet.getName() === 'Mobilizador') {
-    var range = e.range;
-    var row = range.getRow();
-    
-    // Verifica se a edição ocorreu a partir da linha 3
-    if (row >= 3 && range.getColumn() === 14) { // Coluna N
-      var status = range.getValue(); // Valor da célula editada
-      
-      // Verifica se o status foi alterado para "Cancelado"
-      if (status === "Cancelado") {
-        // Define o intervalo da linha até a coluna P (16ª coluna)
-        var rowRange = sheet.getRange(row, 1, 1, 16); // 1 linha, até a coluna P
-        
-        // Preenche o fundo de vermelho
-        rowRange.setBackground('red');
-        
-        // Aplica borda em torno da linha inteira
-        rowRange.setBorder(true, true, true, true, null, null, "black", SpreadsheetApp.BorderStyle.SOLID);
-      } 
-      // Verifica se o status foi alterado para "Confirmado"
-      else if (status === "Confirmado") {
-        // Define o intervalo da linha até a coluna P (16ª coluna)
-        var rowRange = sheet.getRange(row, 1, 1, 16); // 1 linha, até a coluna P
-        
-        // Limpa a cor de fundo da linha, mas mantém a borda
-        rowRange.setBackground(null);
+  // Verificar e mover eventos baseados na coluna N após a criação
+  for (var k = 3; k <= ultimaLinha; k++) {
+    var statusAtual = aba.getRange(k, 14).getValue(); // Obter valor da coluna N
+    moverEvento(k, statusAtual, agendaM, agendaC);
+  }
+}
+
+function moverEvento(linha, status, agendaM, agendaC) {
+  var planilha = SpreadsheetApp.getActiveSpreadsheet();
+  var aba = planilha.getSheetByName('Mobilizador');
+
+  // Captura os dados da linha
+  var dados = aba.getRange(linha, 1, 1, aba.getLastColumn()).getValues()[0];
+
+  var data = dados[0]; // DATA
+  var horario = dados[1]; // HORÁRIO
+  var agendamento = dados[8]; // AGENDAMENTO
+  var responsavel = dados[9]; // RESPONSÁVEL
+  var igrejaLocal = dados[3]; // IGREJA/LOCAL
+
+  // Criar título do evento
+  var tituloEvento = agendamento + ' | ' + responsavel;
+
+  // Verificar se o horário está no formato correto
+  if (typeof horario === 'string' && horario.includes(':')) {
+    var partesHorario = horario.split(':'); // Transformar a string no formato de hora
+
+    if (partesHorario.length === 2) {
+      var horas = parseInt(partesHorario[0]);
+      var minutos = parseInt(partesHorario[1]);
+
+      // Criar um objeto Date com os dados formatados
+      var dataEvento = new Date(data);
+      dataEvento.setHours(horas, minutos);
+
+      // Definir a duração do evento em 30 minutos
+      var fimEvento = new Date(dataEvento);
+      fimEvento.setMinutes(fimEvento.getMinutes() + 30);
+
+      // Verificar se já existe um evento com o mesmo título no mesmo horário nas duas agendas
+      var eventosExistentesM = agendaM.getEvents(dataEvento, fimEvento);
+      var eventosExistentesC = agendaC.getEvents(dataEvento, fimEvento);
+
+      var eventoExistenteM = eventosExistentesM.find(evento => evento.getTitle() === tituloEvento);
+      var eventoExistenteC = eventosExistentesC.find(evento => evento.getTitle() === tituloEvento);
+
+      // Verificar se a data do evento que está sendo movido é anterior à data atual
+      var agora = new Date();
+      if (dataEvento < agora) {
+        Logger.log('Erro: Tentativa de mover evento para uma data que já passou: ' + dataEvento);
+        return; // Retorna sem mover o evento se a data já passou
       }
-      // Verifica se o status foi alterado para "Aguardando"
-      else if (status === "Aguardando") {
-        // Define o intervalo da linha até a coluna P (16ª coluna)
-        var rowRange = sheet.getRange(row, 1, 1, 16); // 1 linha, até a coluna P
-        
-        // Preenche o fundo de amarelo
-        rowRange.setBackground('yellow');
+
+      if (status === 'Cancelado') {
+        // Se o status for 'Cancelado', mover para a agenda de "AGENDAMENTO CANCELADO"
+        if (!eventoExistenteC) {
+          agendaC.createEvent(tituloEvento, dataEvento, fimEvento, {
+            location: igrejaLocal,
+            description: `Evento cancelado.`
+          });
+          Logger.log('Evento movido para AGENDAMENTO CANCELADO: ' + tituloEvento);
+        } else {
+          Logger.log('Evento já existe na agenda AGENDAMENTO CANCELADO: ' + tituloEvento);
+        }
+        // Remover da agenda AGENDAMENTO MISSIONARIO, se existir
+        if (eventoExistenteM) {
+          eventoExistenteM.deleteEvent();
+          Logger.log('Evento removido da agenda AGENDAMENTO MISSIONARIO: ' + tituloEvento);
+        }
+      } else if (status === 'Confirmado') {
+        // Se o status for 'Confirmado', mover para a agenda "AGENDAMENTO MISSIONARIO"
+        if (!eventoExistenteM) {
+          agendaM.createEvent(tituloEvento, dataEvento, fimEvento, {
+            location: igrejaLocal,
+            description: `Evento: ${tipo_de_agendamento}\nTelefone: ${telefone}\nHorário: ${horario}`
+          });
+          Logger.log('Evento movido para AGENDAMENTO MISSIONARIO: ' + tituloEvento);
+        } else {
+          Logger.log('Evento já existe na agenda AGENDAMENTO MISSIONARIO: ' + tituloEvento);
+        }
+        // Remover da agenda Cancelado, se existir
+        if (eventoExistenteC) {
+          eventoExistenteC.deleteEvent();
+          Logger.log('Evento removido da agenda AGENDAMENTO CANCELADO: ' + tituloEvento);
+        }
       }
     }
   }
