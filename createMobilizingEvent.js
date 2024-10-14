@@ -110,73 +110,47 @@ function criarEventoMobilizador() {
   }
 }
 function onEdit(e) {
+  // Verifica se o evento 'e' e o 'range' editado são válidos
+  if (!e || !e.range) return;
+
   // Verifica se a edição ocorreu na aba "Mobilizador"
   var sheet = e.source.getActiveSheet();
   
   if (sheet.getName() === 'Mobilizador') {
-    processMobilizador();
-    sendEmailNotification(sheet.getName());
-  }
-}
-
-function onEdit(e) {
-  // Verifica se a edição ocorreu na aba "Mobilizador"
-  var sheet = e.source.getActiveSheet();
-  
-  if (sheet.getName() === 'Mobilizador') {
-    processMobilizador();
-    sendEmailNotification(sheet.getName());
-  }
-}
-
-function processMobilizador() {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Mobilizador');
-  var data = sheet.getDataRange().getValues();
-  
-  // Começar a leitura da terceira linha
-  for (var i = 2; i < data.length; i++) {  // Ignora as duas primeiras linhas
-    var linha = data[i];
+    var range = e.range;
+    var row = range.getRow();
     
-    Logger.log('Processando linha: ' + (i+1));
-    
-    // Pausa de 5 segundo entre cada linha
-    Utilities.sleep(5000);
+    // Verifica se a edição ocorreu a partir da linha 3
+    if (row >= 3 && range.getColumn() === 14) { // Coluna N
+      var status = range.getValue(); // Valor da célula editada
+      
+      // Verifica se o status foi alterado para "Cancelado"
+      if (status === "Cancelado") {
+        // Define o intervalo da linha até a coluna P (16ª coluna)
+        var rowRange = sheet.getRange(row, 1, 1, 16); // 1 linha, até a coluna P
+        
+        // Preenche o fundo de vermelho
+        rowRange.setBackground('red');
+        
+        // Aplica borda em torno da linha inteira
+        rowRange.setBorder(true, true, true, true, null, null, "black", SpreadsheetApp.BorderStyle.SOLID);
+      } 
+      // Verifica se o status foi alterado para "Confirmado"
+      else if (status === "Confirmado") {
+        // Define o intervalo da linha até a coluna P (16ª coluna)
+        var rowRange = sheet.getRange(row, 1, 1, 16); // 1 linha, até a coluna P
+        
+        // Limpa a cor de fundo da linha, mas mantém a borda
+        rowRange.setBackground(null);
+      }
+      // Verifica se o status foi alterado para "Aguardando"
+      else if (status === "Aguardando") {
+        // Define o intervalo da linha até a coluna P (16ª coluna)
+        var rowRange = sheet.getRange(row, 1, 1, 16); // 1 linha, até a coluna P
+        
+        // Preenche o fundo de amarelo
+        rowRange.setBackground('yellow');
+      }
+    }
   }
-}
-
-function sendEmailNotification(listaAbasAtualizadas) {
-  var emailRecipient = "agendamento@jmm.org.br";
-  var subject = "Atualização nas abas da planilha";
-  
-  // Obtém o horário atual da atualização
-  var horarioAtualizacao = new Date().toLocaleString("pt-BR");
-  
-  // Padrao do envio de e-mail
-  var message = `
-    <div style="font-family: 'Sans Serif', Arial, sans-serif; font-size: 14px; color: #333;">
-      <p>Olá Setor de Promoção, tudo bem?</p>
-
-      <p>Houve uma nova atualização na(s) aba(s) <b>${listaAbasAtualizadas}</b> às <b>${horarioAtualizacao}</b>.</p>
-
-      <p>Caso tenha alguma dúvida, entre em contato com o setor de Suporte Técnico.</p>
-
-      <p>Atenciosamente,</p>
-
-      <br>
-
-      <p style="font-weight: bold; margin-top: 20px;">
-        Sistema de Agendamento Automático <br>
-        Copyright (c) 2024 Diego Ferreira L.G. Oliveira <br>
-        Tecnologia da Informação <br>
-        (21) 2122-1900 Ramal 2001
-      </p>
-    </div>
-  `;
-
-  // Envio o e-mail
-  MailApp.sendEmail({
-    to: emailRecipient,
-    subject: subject,
-    htmlBody: message
-  });
 }
