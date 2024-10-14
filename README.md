@@ -20,7 +20,7 @@ This code is very simple and was developed due to the need of the events departm
 
 With the new update, the code allows you to read data from different tabs and save it in a specific category in Google Calendar.
 
-NOTE: For the code to work, you need to have the Google Workspace environment and always send the code with the .gs extension.
+NOTE: For the code to work, you need to have the Google Workspace environment and always send the code with the .gs extension and have created the calendars you want within Google Calendar.
 
 [PT-BR]
 
@@ -28,7 +28,7 @@ Esse código é muito simples e foi desenvolvido através da necessidade do seto
 
 Com a nova atualização, o codigo permite ler dados de abas diferentes e salvar em uma categoria especifica no Google Calendar.
 
-OBS: Para o codigo funcionar, voce precisa ter o ambiente Google Workspace e sempre enviar o cogido com a extenção .gs
+OBS: Para o codigo funcionar, voce precisa ter o ambiente Google Workspace e sempre enviar o cogido com a extenção .gs e ter criado as agendas que deseja dentro do Google Calendar.
 
 ---
 
