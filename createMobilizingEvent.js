@@ -136,8 +136,10 @@ function moverEvento(linha, status, agendaM, agendaC) {
 
   var data = dados[0]; // DATA
   var horario = dados[1]; // HORÁRIO
+  var tipo_de_agendamento = linha[2]; // TIPO DE AGENDAMENTO
   var agendamento = dados[8]; // AGENDAMENTO
   var responsavel = dados[9]; // RESPONSÁVEL
+  var telefone = linha[10]; // TELEFONE
   var igrejaLocal = dados[3]; // IGREJA/LOCAL
 
   // Criar título do evento
