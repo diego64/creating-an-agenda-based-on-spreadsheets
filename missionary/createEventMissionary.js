@@ -93,8 +93,8 @@ function criarEventoMissionario() {
 
             // Criar descrição do evento
             var descricaoEvento = status === "Cancelado" 
-              ? `Evento Cancelado\nTelefone: ${telefone}\nHorário: ${horarioString}\nCancelado por: ${responsavel}` 
-              : `Evento: ${tipo_de_agendamento}\nTelefone: ${telefone}\nHorário: ${horarioString}`;
+              ? `Evento Cancelado\nTelefone: ${telefone}\nHorário: ${horarioString}\nMobilizador Responsável: ${responsavel}`
+              : `Evento: ${tipo_de_agendamento}\nTelefone: ${telefone}\nHorário: ${horarioString}\nMobilizador Responsável: ${responsavel}`;
               
             // Criar novo evento na agenda
             var criarEvento = agenda.createEvent(tituloEvento, dataEvento, fimEvento, {
