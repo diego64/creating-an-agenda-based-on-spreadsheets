@@ -63,7 +63,7 @@ function criarEventoMissionario() {
               }
 
               var descricaoEvento = `Evento: ${tipoEvento}\nTelefone: ${telefoneResponsavel}\nHorário: ${horario}\nMobilizador Responsável: ${responsavel}`;
-              var novoEvento = agenda.createEvent(`Missionário | ${missionario}`, dataEvento, fimEvento, {
+              var novoEvento = agenda.createEvent(`${agendamento} | ${missionario}`, dataEvento, fimEvento, {
                 location: localEvento,
                 description: descricaoEvento
               });
